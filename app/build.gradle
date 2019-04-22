@@ -1,0 +1,81 @@
+
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    defaultConfig {
+        applicationId "com.gradleconfig.gradleconfigapp"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+
+    signingConfigs {
+        debug {
+            storeFile file('../app/gradle.jks')
+            storePassword 'gradle'
+            keyAlias 'gradle'
+            keyPassword 'gradle'
+            project.ext.set("archivesBaseName", "GradleConfig_DEV_" + getDate() + "_" + defaultConfig.versionCode + "(" + defaultConfig.versionName + ")")
+
+        }
+        release {
+            storeFile file('../app/gradle.jks')
+            storePassword 'gradle'
+            keyAlias 'gradle'
+            keyPassword 'gradle'
+
+            project.ext.set("archivesBaseName", "GradleConfig_" + getDate() + "_" + defaultConfig.versionCode + "(" + defaultConfig.versionName + ")")
+
+
+        }
+
+    }
+
+    buildTypes {
+
+        release {
+            signingConfig signingConfigs.release
+            minifyEnabled false
+            buildConfigField "String", "URL_CURRENT", "\"https://api-release-url/\""
+            resValue 'string', 'app_name', 'GradleConfig'
+            manifestPlaceholders = [
+                    appIcon  : "@mipmap/ic_launcher_staging",
+                    roundIcon: "@mipmap/ic_launcher_round_staging"
+            ]
+
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            applicationIdSuffix '.debug'
+
+            signingConfig signingConfigs.debug
+            minifyEnabled false
+            buildConfigField "String", "URL_CURRENT", "\"https://api-dev-url/\""
+            resValue 'string', 'app_name', 'GradleConfig DEV'
+            manifestPlaceholders = [
+                    appIcon  : "@mipmap/ic_launcher",
+                    roundIcon: "@mipmap/ic_launcher_round"
+
+            ]
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+def getDate() {
+    def date = new Date()
+    def formattedDate = date.format('MM.dd.yy')
+    return formattedDate
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation "com.android.support:appcompat-v7:$rootProject.supportLibraryVersion"
+    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+}
